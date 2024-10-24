@@ -60,6 +60,6 @@ if __name__=="__main__":
     data_transformation = DataTransformation()
     train_ar,test_ar,_ = data_transformation.initiate_data_transformation(train_path=train_data_path,test_path=test_data_path)
     
-    
+    # Model Training
     trainer_obj=ModelTrainer()
     print(trainer_obj.initiate_model_trainer(train_array=train_ar,test_array=test_ar))
