@@ -1,9 +1,15 @@
 import os
 import sys
+import yaml
 
 import numpy as np
 import pandas as pd
 import pickle
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor, AdaBoostRegressor
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.linear_model import LinearRegression
+from xgboost import XGBRegressor
+from catboost import CatBoostRegressor
 from sklearn.metrics import r2_score
 from sklearn.model_selection import GridSearchCV
 
@@ -113,3 +119,33 @@ def load_object(file_path):
 
     except Exception as e:
         raise CustomException(e, sys)
+    
+
+def load_config(file_path):
+    """
+    Load model configurations from a YAML file.
+
+    This function reads a YAML file containing model definitions and their
+    hyperparameters. It dynamically creates instances of the specified models
+    using the provided parameters.
+
+    Args:
+        file_path (str): The path to the YAML configuration file.
+
+    Returns:
+        tuple: A tuple containing:
+            - models (dict): A dictionary of model instances, where keys are 
+              model names and values are instantiated model objects.
+            - params (dict): A dictionary of hyperparameters for each model, 
+              where keys are model names and values are dictionaries of parameters.
+    """
+    with open(file_path, 'r') as file:
+        config = yaml.safe_load(file)
+    models = {}
+    params = {}
+    for model_name, model_info in config['models'].items():
+        model_class = globals().get(model_name)  # globals to get model class
+        if model_class:
+            models[model_name] = model_class(**{k: v for k, v in model_info.items() if k != 'params'})
+            params[model_name] = model_info['params']
+    return models, params
